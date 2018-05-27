@@ -101,6 +101,14 @@ boolean PulseSensorPlaygroundSetupInterrupt();
 */
 boolean PulseSensorPlayground::UsingInterrupts = USE_ARDUINO_INTERRUPTS;
 
+#if defined(ESP32)
+#define TIMER0 0
+#define SAMPLE_PERIOD 2     // サンプリング間隔(ミリ秒)
+
+hw_timer_t * samplingTimer = NULL;
+extern void IRAM_ATTR ISR();
+#endif
+
 boolean PulseSensorPlaygroundSetupInterrupt() {
 
 #if !USE_ARDUINO_INTERRUPTS
@@ -171,6 +179,13 @@ boolean PulseSensorPlaygroundSetupInterrupt() {
     ENABLE_PULSE_SENSOR_INTERRUPTS;
     return true;
 
+  #elif defined(ESP32)
+    samplingTimer = timerBegin(TIMER0, 80, true);
+    timerAttachInterrupt(samplingTimer, &ISR, true);
+    timerAlarmWrite(samplingTimer, SAMPLE_PERIOD * 1000, true);
+    timerAlarmEnable(samplingTimer);
+
+    return true;
   #else
     return false;      // unknown or unsupported platform.
   #endif
@@ -212,6 +227,10 @@ boolean PulseSensorPlaygroundSetupInterrupt() {
       ENABLE_PULSE_SENSOR_INTERRUPTS;          // enable interrupts when you're done
     }
   #endif
+#elif defined(ESP32)
+    void IRAM_ATTR ISR() {
+        PulseSensorPlayground::OurThis->onSampleTime();
+    }
 #endif
 
 

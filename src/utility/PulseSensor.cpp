@@ -116,7 +116,11 @@ boolean PulseSensor::isInsideBeat() {
 
 void PulseSensor::readNextSample() {
   // We assume assigning to an int is atomic.
+#if defined(ESP32)
+  Signal = analogRead(InputPin) / 4;
+#else
   Signal = analogRead(InputPin);
+#endif
 }
 
 void PulseSensor::processLatestSample() {
@@ -206,7 +210,9 @@ void PulseSensor::initializeLEDs() {
   }
   if (FadePin >= 0) {
     pinMode(FadePin, OUTPUT);
+#if !defined(ESP32)
     analogWrite(FadePin, 0); // turn off the LED.
+#endif
   }
 }
 
@@ -216,6 +222,8 @@ void PulseSensor::updateLEDs() {
   }
 
   if (FadePin >= 0) {
+#if !defined(ESP32)
     analogWrite(FadePin, FadeLevel / FADE_SCALE);
+#endif
   }
 }

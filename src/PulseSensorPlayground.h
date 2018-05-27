@@ -116,8 +116,13 @@
 #define PULSE_SENSOR_MEMORY_USAGE false
 //#define PULSE_SENSOR_MEMORY_USAGE true
 
-
+#if defined(ESP32)
+#ifdef ARDUINO_M5Stack-Core-ESP32
+#include <M5Stack.h>
+#endif
+#else
 #include <Arduino.h>
+#endif
 #include "utility/PulseSensor.h"
 #include "utility/PulseSensorSerialOutput.h"
 #include "utility/PulseSensorTimingStatistics.h"
@@ -241,8 +246,11 @@ class PulseSensorPlayground {
        Perform all the processing necessary when it's time to
        read from all the PulseSensors and process their signals.
     */
-    void onSampleTime();
-
+#if defined(ESP32)
+    void IRAM_ATTR onSampleTime();
+#else
+void onSampleTime();
+#endif
     /*
        Returns the most recently read analog value from the given PulseSensor
        (range: 0..1023).

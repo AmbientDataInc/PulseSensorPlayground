@@ -124,7 +124,11 @@ boolean PulseSensorPlayground::sawNewSample() {
   return true;
 }
 
+#if defined(ESP32)
+void IRAM_ATTR PulseSensorPlayground::onSampleTime() {
+#else
 void PulseSensorPlayground::onSampleTime() {
+#endif
   // Typically called from the ISR.
 
   /*
