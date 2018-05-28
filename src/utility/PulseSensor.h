@@ -18,6 +18,8 @@
 
 #include <Arduino.h>
 
+#define RATE_SIZE 60
+
 class PulseSensor {
   public:
     // Constructs a PulseSensor manager using a default configuration.
@@ -91,7 +93,7 @@ class PulseSensor {
     // Variables internal to the pulse detection algorithm.
     // Not volatile because we use them only internally to the pulse detection.
     unsigned long sampleIntervalMs;  // expected time between calls to readSensor(), in milliseconds.
-    int rate[10];                    // array to hold last ten IBI values (ms)
+    int rate[RATE_SIZE];             // array to hold last ten IBI values (ms)
     unsigned long sampleCounter;     // used to determine pulse timing. Milliseconds since we started.
     int P;                           // used to find peak in pulse wave, seeded (sample value)
     int T;                           // used to find trough in pulse wave, seeded (sample value)

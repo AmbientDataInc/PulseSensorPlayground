@@ -41,7 +41,7 @@ PulseSensor::PulseSensor() {
 
   // Initialize (seed) the pulse detector
   sampleIntervalMs = PulseSensorPlayground::MICROS_PER_READ / 1000;
-  for (int i = 0; i < 10; ++i) {
+  for (int i = 0; i < RATE_SIZE; ++i) {
     rate[i] = 0;
   }
   QS = false;
@@ -155,7 +155,7 @@ void PulseSensor::processLatestSample() {
 
       if (secondBeat) {                      // if this is the second beat, if secondBeat == TRUE
         secondBeat = false;                  // clear secondBeat flag
-        for (int i = 0; i <= 9; i++) {       // seed the running total to get a realisitic BPM at startup
+        for (int i = 0; i < RATE_SIZE; i++) {       // seed the running total to get a realisitic BPM at startup
           rate[i] = IBI;
         }
       }
@@ -171,14 +171,14 @@ void PulseSensor::processLatestSample() {
       // keep a running total of the last 10 IBI values
       word runningTotal = 0;                  // clear the runningTotal variable
 
-      for (int i = 0; i <= 8; i++) {          // shift data in the rate array
+      for (int i = 0; i < (RATE_SIZE - 1); i++) {          // shift data in the rate array
         rate[i] = rate[i + 1];                // and drop the oldest IBI value
         runningTotal += rate[i];              // add up the 9 oldest IBI values
       }
 
-      rate[9] = IBI;                          // add the latest IBI to the rate array
-      runningTotal += rate[9];                // add the latest IBI to runningTotal
-      runningTotal /= 10;                     // average the last 10 IBI values
+      rate[RATE_SIZE - 1] = IBI;                          // add the latest IBI to the rate array
+      runningTotal += rate[RATE_SIZE - 1];                // add the latest IBI to runningTotal
+      runningTotal /= RATE_SIZE;                     // average the last 10 IBI values
       BPM = 60000 / runningTotal;             // how many beats can fit into a minute? that's BPM!
       QS = true;                              // set Quantified Self flag (we detected a beat)
       FadeLevel = MAX_FADE_LEVEL;             // If we're fading, re-light that LED.
